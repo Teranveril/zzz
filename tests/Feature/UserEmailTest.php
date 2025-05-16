@@ -26,58 +26,58 @@ class UserEmailTest extends TestCase
     }
 
 
-//    public function test_get_users_list()
-//    {
-//        User::factory()->count(3)->create();
-//        $response = $this->getJson('/users');
-//        $response->assertStatus(200)
-//            ->assertJsonCount(3);
-//    }
-//
-//    public function test_get_single_user()
-//    {
-//        $user = User::factory()->create(['first_name' => 'Adam']);
-//        $response = $this->getJson("/users/{$user->id}");
-//        $response->assertStatus(200)
-//            ->assertJsonFragment(['first_name' => 'Adam']);
-//    }
-//
-//    public function test_update_user()
-//    {
-//        $user = User::factory()->create(['first_name' => 'Ela']);
-//        $payload = ['first_name' => 'Elżbieta', 'last_name' => 'Nowak', 'phone_number' => '987654321'];
-//        $response = $this->putJson("/users/{$user->id}", $payload);
-//        $response->assertStatus(200)
-//            ->assertJsonFragment(['first_name' => 'Elżbieta']);
-//
-//        $this->assertDatabaseHas('users', ['first_name' => 'Elżbieta', 'last_name' => 'Nowak']);
-//    }
-//
-//    public function test_delete_user()
-//    {
-//        $user = User::factory()->create();
-//        $response = $this->deleteJson("/users/{$user->id}");
-//        $response->assertStatus(204);
-//
-//        $this->assertDatabaseCount('users', 0);
-//    }
-//
-//    public function test_send_welcome_emails_logs_messages()
-//    {
-//        $user = User::factory()->create(['first_name' => 'Marek', 'last_name' => 'Nowak']);
-//        // Dodajemy dwa emaile do użytkownika
-//        EmailAddress::factory()->count(2)->create(['user_id' => $user->id]);
-//
-//        // Mockujemy fasadę Log, żeby przechwycić wywołania
-//        Log::shouldReceive('info')->times(2)->with(
-//            Mockery::on(function ($msg) use ($user) {
-//                // Sprawdź, czy wiadomość zawiera imię i nazwisko użytkownika
-//                return str_contains($msg, "Witamy użytkownika {$user->first_name} {$user->last_name}");
-//            })
-//        );
-//
-//        $response = $this->postJson("/users/{$user->id}/welcome");
-//        $response->assertStatus(200)
-//            ->assertJson(['message' => 'Wiadomości zostały zalogowane']);
-//    }
+    public function test_get_users_list()
+    {
+        User::factory()->count(3)->create();
+        $response = $this->getJson('/users');
+        $response->assertStatus(200)
+            ->assertJsonCount(3);
+    }
+
+    public function test_get_single_user()
+    {
+        $user = User::factory()->create(['first_name' => 'Adam']);
+        $response = $this->getJson("/users/{$user->id}");
+        $response->assertStatus(200)
+            ->assertJsonFragment(['first_name' => 'Adam']);
+    }
+
+    public function test_update_user()
+    {
+        $user = User::factory()->create(['first_name' => 'Ela']);
+        $payload = ['first_name' => 'Elżbieta', 'last_name' => 'Nowak', 'phone_number' => '987654321'];
+        $response = $this->putJson("/users/{$user->id}", $payload);
+        $response->assertStatus(200)
+            ->assertJsonFragment(['first_name' => 'Elżbieta']);
+
+        $this->assertDatabaseHas('users', ['first_name' => 'Elżbieta', 'last_name' => 'Nowak']);
+    }
+
+    public function test_delete_user()
+    {
+        $user = User::factory()->create();
+        $response = $this->deleteJson("/users/{$user->id}");
+        $response->assertStatus(204);
+
+        $this->assertDatabaseCount('users', 0);
+    }
+
+    public function test_send_welcome_emails_logs_messages()
+    {
+        $user = User::factory()->create(['first_name' => 'Marek', 'last_name' => 'Nowak']);
+        // Dodajemy dwa emaile do użytkownika
+        EmailAddress::factory()->count(2)->create(['user_id' => $user->id]);
+
+        // Mockujemy fasadę Log, żeby przechwycić wywołania
+        Log::shouldReceive('info')->times(2)->with(
+            Mockery::on(function ($msg) use ($user) {
+                // Sprawdź, czy wiadomość zawiera imię i nazwisko użytkownika
+                return str_contains($msg, "Witamy użytkownika {$user->first_name} {$user->last_name}");
+            })
+        );
+
+        $response = $this->postJson("/users/{$user->id}/welcome");
+        $response->assertStatus(200)
+            ->assertJson(['message' => 'Wiadomości zostały zalogowane']);
+    }
 }
