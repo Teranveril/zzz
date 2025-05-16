@@ -17,7 +17,7 @@ class UserEmailTest extends TestCase
         $payload = [
             'first_name' => 'Jan',
             'last_name'  => 'Kowalski',
-            'phone'      => '123456789',
+            'phone_number'      => '123456789',
             'emails'     => ['jan@example.com', 'kowalski@example.com'],
         ];
 
@@ -50,7 +50,7 @@ class UserEmailTest extends TestCase
     public function test_update_user()
     {
         $user = User::factory()->create(['first_name' => 'Ela']);
-        $payload = ['first_name' => 'Elżbieta', 'last_name' => 'Nowak', 'phone' => '987654321'];
+        $payload = ['first_name' => 'Elżbieta', 'last_name' => 'Nowak', 'phone_number' => '987654321'];
         $response = $this->putJson("/api/users/{$user->id}", $payload);
         $response->assertStatus(200)
             ->assertJsonFragment(['first_name' => 'Elżbieta']);
