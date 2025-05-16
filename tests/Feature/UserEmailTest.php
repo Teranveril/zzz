@@ -20,7 +20,7 @@ class UserEmailTest extends TestCase
             'phone_number' => '123456789'
         ];
 
-        $response = $this->postJson('/api/users', $payload);
+        $response = $this->postJson('/users', $payload);
 
         $response->assertStatus(201);
     }
@@ -29,7 +29,7 @@ class UserEmailTest extends TestCase
 //    public function test_get_users_list()
 //    {
 //        User::factory()->count(3)->create();
-//        $response = $this->getJson('/api/users');
+//        $response = $this->getJson('/users');
 //        $response->assertStatus(200)
 //            ->assertJsonCount(3);
 //    }
@@ -37,7 +37,7 @@ class UserEmailTest extends TestCase
 //    public function test_get_single_user()
 //    {
 //        $user = User::factory()->create(['first_name' => 'Adam']);
-//        $response = $this->getJson("/api/users/{$user->id}");
+//        $response = $this->getJson("/users/{$user->id}");
 //        $response->assertStatus(200)
 //            ->assertJsonFragment(['first_name' => 'Adam']);
 //    }
@@ -46,7 +46,7 @@ class UserEmailTest extends TestCase
 //    {
 //        $user = User::factory()->create(['first_name' => 'Ela']);
 //        $payload = ['first_name' => 'Elżbieta', 'last_name' => 'Nowak', 'phone_number' => '987654321'];
-//        $response = $this->putJson("/api/users/{$user->id}", $payload);
+//        $response = $this->putJson("/users/{$user->id}", $payload);
 //        $response->assertStatus(200)
 //            ->assertJsonFragment(['first_name' => 'Elżbieta']);
 //
@@ -56,7 +56,7 @@ class UserEmailTest extends TestCase
 //    public function test_delete_user()
 //    {
 //        $user = User::factory()->create();
-//        $response = $this->deleteJson("/api/users/{$user->id}");
+//        $response = $this->deleteJson("/users/{$user->id}");
 //        $response->assertStatus(204);
 //
 //        $this->assertDatabaseCount('users', 0);
@@ -76,7 +76,7 @@ class UserEmailTest extends TestCase
 //            })
 //        );
 //
-//        $response = $this->postJson("/api/users/{$user->id}/welcome");
+//        $response = $this->postJson("/users/{$user->id}/welcome");
 //        $response->assertStatus(200)
 //            ->assertJson(['message' => 'Wiadomości zostały zalogowane']);
 //    }
