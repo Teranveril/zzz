@@ -44,7 +44,7 @@ class UserController extends Controller
         $data = $request->validate([
             'first_name' => 'required|string',
             'last_name'  => 'required|string',
-            'phone'      => 'required|string',
+            'phone_number'      => 'required|string',
             'emails'     => 'sometimes|array',
             'emails.*'   => 'email',
         ]);
@@ -61,7 +61,7 @@ class UserController extends Controller
         $data = $request->validate([
             'first_name' => 'required|string',
             'last_name'  => 'required|string',
-            'phone'      => 'required|string',
+            'phone_number'      => 'required|string',
             // pomijamy emails przy aktualizacji dla prostoty
         ]);
 

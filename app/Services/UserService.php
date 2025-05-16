@@ -32,7 +32,7 @@ class UserService
         $user = User::create([
             'first_name' => $data['first_name'],
             'last_name'  => $data['last_name'],
-            'phone'      => $data['phone'],
+            'phone_number'      => $data['phone'],
         ]);
 
         if (!empty($data['emails']) && is_array($data['emails'])) {
@@ -52,7 +52,7 @@ class UserService
         $user->update([
             'first_name' => $data['first_name'],
             'last_name'  => $data['last_name'],
-            'phone'      => $data['phone'],
+            'phone_number'      => $data['phone'],
         ]);
         return $user;
     }
