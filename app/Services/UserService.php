@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Mail\WelcomeUserMail;
 use App\Models\User;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class UserService
 {
@@ -31,8 +33,8 @@ class UserService
     {
         $user = User::create([
             'first_name' => $data['first_name'],
-            'last_name'  => $data['last_name'],
-            'phone_number'      => $data['phone_number'],
+            'last_name' => $data['last_name'],
+            'phone_number' => $data['phone_number'],
         ]);
 
         if (!empty($data['emails']) && is_array($data['emails'])) {
@@ -51,8 +53,8 @@ class UserService
     {
         $user->update([
             'first_name' => $data['first_name'],
-            'last_name'  => $data['last_name'],
-            'phone_number'      => $data['phone_number'],
+            'last_name' => $data['last_name'],
+            'phone_number' => $data['phone_number'],
         ]);
         return $user;
     }
@@ -74,6 +76,7 @@ class UserService
         $message = "Witamy użytkownika {$user->first_name} {$user->last_name}";
         foreach ($user->emails as $email) {
             Log::info("{$message} na adresie {$email->email}");
+            Mail::to($email->email)->queue(new WelcomeUserMail($user));
         }
     }
 }

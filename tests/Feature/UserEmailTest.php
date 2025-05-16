@@ -1,6 +1,8 @@
 <?php
 namespace Tests\Feature;
 
+use App\Mail\WelcomeUserMail;
+use Illuminate\Support\Facades\Mail;
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use App\Models\User;
@@ -12,6 +14,7 @@ class UserEmailTest extends TestCase
 {
     use RefreshDatabase;
 
+    //LOG
     public function test_create_user()
     {
         $payload = [
@@ -79,5 +82,28 @@ class UserEmailTest extends TestCase
         $response = $this->postJson("/users/{$user->id}/welcome");
         $response->assertStatus(200)
             ->assertJson(['message' => 'Wiadomości zostały zalogowane']);
+    }
+
+    //SMTP
+    public function test_welcome_mail_is_sent_to_all_addresses(): void
+    {
+        Mail::fake();
+
+        $user = User::factory()->create();
+        EmailAddress::factory()->count(3)->create([
+            'user_id' => $user->id,
+        ]);
+
+        $this->postJson("/users/{$user->id}/welcome")
+            ->assertOk();
+
+        Mail::assertSent(WelcomeUserMail::class, 3);
+
+        foreach ($user->emails as $email) {
+            Mail::assertSent(WelcomeUserMail::class, function ($mailable) use ($user, $email) {
+                return $mailable->hasTo($email->email)
+                    && $mailable->user->is($user);
+            });
+        }
     }
 }
