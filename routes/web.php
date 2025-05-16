@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\API\UserController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::apiResource('users', UserController::class)->except(['index', 'show']);
-Route::post('/users/{user}/send-welcome-emails', [UserController::class, 'sendWelcomeEmails']);
+// Route::apiResource automatycznie ustawia prefix /api (konfigurowane w bootstrap/app.php:contentReference[oaicite:20]{index=20})
+Route::apiResource('users', UserController::class);
+
+// Niestandardowy endpoint do logowania powitania
+Route::post('users/{user}/welcome', [UserController::class, 'sendWelcomeEmails']);

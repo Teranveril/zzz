@@ -1,58 +1,79 @@
 <?php
+
 namespace App\Services;
 
 use App\Models\User;
-use App\Mail\WelcomeMail;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
+use Illuminate\Support\Facades\Log;
 
 class UserService
 {
-public function createUserWithEmails(array $data): User
-{
-return DB::transaction(function () use ($data) {
-$user = User::create([
-'name' => $data['name'],
-'email' => $data['email'],
-'password' => bcrypt($data['password']),
-'phone_number' => $data['phone_number']
-]);
+    /**
+     * Pobierz wszystkich użytkowników.
+     */
+    public function getAllUsers(): \Illuminate\Database\Eloquent\Collection
+    {
+        return User::with('emails')->get();
+    }
 
-$this->createEmails($user, $data['emails']);
+    /**
+     * Pobierz jednego użytkownika (wymaga parametru User dzięki route model binding).
+     */
+    public function getUser(User $user)
+    {
+        return $user->load('emails');
+    }
 
-return $user->load('emailAddresses');
-});
-}
+    /**
+     * Utwórz nowego użytkownika (dane z validacji request).
+     * Opcjonalnie tworzy także powiązane adresy email.
+     */
+    public function createUser(array $data): User
+    {
+        $user = User::create([
+            'first_name' => $data['first_name'],
+            'last_name'  => $data['last_name'],
+            'phone'      => $data['phone'],
+        ]);
 
-public function updateUserWithEmails(User $user, array $data): User
-{
-return DB::transaction(function () use ($user, $data) {
-$user->update([
-'name' => $data['name'] ?? $user->name,
-'email' => $data['email'] ?? $user->email,
-'phone_number' => $data['phone_number'] ?? $user->phone_number
-]);
+        if (!empty($data['emails']) && is_array($data['emails'])) {
+            $emails = array_map(fn($address) => ['email' => $address], $data['emails']);
+            $user->emails()->createMany($emails);
+        }
 
-if (isset($data['emails'])) {
-$user->emailAddresses()->delete();
-$this->createEmails($user, $data['emails']);
-}
+        return $user;
+    }
 
-return $user->fresh()->load('emailAddresses');
-});
-}
+    /**
+     * Zaktualizuj istniejącego użytkownika.
+     * (Opcjonalnie można też obsłużyć aktualizację adresów email tutaj.)
+     */
+    public function updateUser(User $user, array $data): User
+    {
+        $user->update([
+            'first_name' => $data['first_name'],
+            'last_name'  => $data['last_name'],
+            'phone'      => $data['phone'],
+        ]);
+        return $user;
+    }
 
-public function sendWelcomeEmails(User $user): void
-{
-$user->emailAddresses->each(function ($email) use ($user) {
-Mail::to($email->email)->send(new WelcomeMail($user));
-});
-}
+    /**
+     * Usuń użytkownika.
+     */
+    public function deleteUser(User $user): void
+    {
+        $user->delete();
+    }
 
-private function createEmails(User $user, array $emails): void
-{
-collect($emails)->each(function ($email) use ($user) {
-$user->emailAddresses()->create(['email' => $email]);
-});
-}
+    /**
+     * Wyślij (zaloguj) wiadomość powitalną do wszystkich emaili użytkownika.
+     * W rzeczywistości używamy Log::info zamiast prawdziwego wysyłania.
+     */
+    public function sendWelcomeEmails(User $user): void
+    {
+        $message = "Witamy użytkownika {$user->first_name} {$user->last_name}";
+        foreach ($user->emails as $email) {
+            Log::info("{$message} na adresie {$email->email}");
+        }
+    }
 }

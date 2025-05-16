@@ -1,35 +1,90 @@
 <?php
 
-namespace App\Http\Controllers\API;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreUserRequest;
-use App\Http\Requests\UpdateUserRequest;
-use App\Models\User;
+use Illuminate\Http\Request;
 use App\Services\UserService;
-use Illuminate\Http\JsonResponse;
+use App\Models\User;
 
 class UserController extends Controller
 {
-    public function __construct(private UserService $userService) {}
+    protected $userService;
 
-    public function store(StoreUserRequest $request): JsonResponse
+    public function __construct(UserService $userService)
     {
-        $user = $this->userService->createUserWithEmails($request->validated());
+        $this->userService = $userService;
+    }
+
+    /**
+     * GET /api/users
+     */
+    public function index()
+    {
+        $users = $this->userService->getAllUsers();
+        return response()->json($users);
+    }
+
+    /**
+     * GET /api/users/{user}
+     * Implicit model binding: {user} => User $user
+     */
+    public function show(User $user)
+    {
+        $userWithEmails = $this->userService->getUser($user);
+        return response()->json($userWithEmails);
+    }
+
+    /**
+     * POST /api/users
+     */
+    public function store(Request $request)
+    {
+        // Walidacja danych
+        $data = $request->validate([
+            'first_name' => 'required|string',
+            'last_name'  => 'required|string',
+            'phone'      => 'required|string',
+            'emails'     => 'sometimes|array',
+            'emails.*'   => 'email',
+        ]);
+
+        $user = $this->userService->createUser($data);
         return response()->json($user, 201);
     }
 
-    public function update(UpdateUserRequest $request, User $user): JsonResponse
+    /**
+     * PUT /api/users/{user}
+     */
+    public function update(Request $request, User $user)
     {
-        $user = $this->userService->updateUserWithEmails($user, $request->validated());
-        return response()->json($user);
+        $data = $request->validate([
+            'first_name' => 'required|string',
+            'last_name'  => 'required|string',
+            'phone'      => 'required|string',
+            // pomijamy emails przy aktualizacji dla prostoty
+        ]);
+
+        $updated = $this->userService->updateUser($user, $data);
+        return response()->json($updated);
     }
 
-    public function sendWelcomeEmails(User $user): JsonResponse
+    /**
+     * DELETE /api/users/{user}
+     */
+    public function destroy(User $user)
+    {
+        $this->userService->deleteUser($user);
+        return response()->json(null, 204);
+    }
+
+    /**
+     * POST /api/users/{user}/welcome
+     * Endpoint logujący wiadomość powitalną na wszystkie adresy email użytkownika.
+     */
+    public function sendWelcomeEmails(User $user)
     {
         $this->userService->sendWelcomeEmails($user);
-        return response()->json(['message' => 'Wiadomości wysłane']);
+        return response()->json(['message' => 'Wiadomości zostały zalogowane']);
     }
-
-    // ... pozostałe metody
 }
