@@ -73,21 +73,21 @@ class UserEmailTest extends TestCase
         Mail::fake();
 
         $user = User::factory()->create();
+
         EmailAddress::factory()->count(3)->create([
             'user_id' => $user->id,
         ]);
-
-        $user->load('emails');
 
         $this->postJson("/users/{$user->id}/welcome")
             ->assertOk();
 
         Mail::assertSent(WelcomeUserMail::class, 3);
 
-        foreach ($user->emails as $email) {  // poprawnie jest emails, nie emailAddresses
+        $user->load('emails');
+
+        foreach ($user->emails as $email) {
             Mail::assertSent(WelcomeUserMail::class, function ($mail) use ($user, $email) {
-                return $mail->hasTo($email->email)
-                    && $mail->user->is($user);
+                return $mail->hasTo($email->email) && $mail->user->is($user);
             });
         }
     }
