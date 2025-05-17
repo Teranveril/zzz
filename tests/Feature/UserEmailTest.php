@@ -1,4 +1,5 @@
 <?php
+
 namespace Tests\Feature;
 
 use App\Mail\WelcomeUserMail;
@@ -18,8 +19,8 @@ class UserEmailTest extends TestCase
     public function test_create_user()
     {
         $payload = [
-            'first_name'   => 'Jan',
-            'last_name'    => 'Kowalski',
+            'first_name' => 'Jan',
+            'last_name' => 'Kowalski',
             'phone_number' => '123456789'
         ];
 
@@ -75,6 +76,8 @@ class UserEmailTest extends TestCase
         EmailAddress::factory()->count(3)->create([
             'user_id' => $user->id,
         ]);
+
+        $user->load('emails');
 
         $this->postJson("/users/{$user->id}/welcome")
             ->assertOk();
