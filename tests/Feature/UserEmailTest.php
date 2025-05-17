@@ -73,17 +73,17 @@ class UserEmailTest extends TestCase
         Mail::fake();
 
         $user = User::factory()->create();
-
         EmailAddress::factory()->count(3)->create([
             'user_id' => $user->id,
         ]);
+
+        // Ważne: odśwież model użytkownika po utworzeniu emaili
+        $user->load('emails');
 
         $this->postJson("/users/{$user->id}/welcome")
             ->assertOk();
 
         Mail::assertSent(WelcomeUserMail::class, 3);
-
-        $user->load('emails');
 
         foreach ($user->emails as $email) {
             Mail::assertSent(WelcomeUserMail::class, function ($mail) use ($user, $email) {
