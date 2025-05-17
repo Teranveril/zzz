@@ -84,6 +84,7 @@ class UserController extends Controller
      */
     public function sendWelcomeEmails(User $user)
     {
+        $user->load('emails');
         $this->userService->sendWelcomeEmails($user);
         return response()->json(['message' => 'Wiadomości zostały zalogowane']);
     }
