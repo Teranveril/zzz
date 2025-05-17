@@ -74,9 +74,16 @@ class UserService
     public function sendWelcomeEmails(User $user): void
     {
         $message = "Witamy użytkownika {$user->first_name} {$user->last_name}";
-        foreach ($user->emails as $email) {
-            Log::info("{$message} na adresie {$email->email}");
-            Mail::to($email->email)->queue(new WelcomeUserMail($user));
+//        foreach ($user->emails as $email) {
+//            Log::info("{$message} na adresie {$email->email}");
+//            Mail::to($email->email)->queue(new WelcomeUserMail($user));
+//        }
+
+        $user->load('emailAddresses');
+        foreach ($user->emails as $address) {
+            Mail::to($address->email)->send(
+                new WelcomeUserMail($user)
+            );
         }
     }
 }
