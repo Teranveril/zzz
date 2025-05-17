@@ -13,7 +13,7 @@ class EmailAddressFactory extends Factory
     {
         return [
             'email' => $this->faker->unique()->safeEmail(),
-            // user_id ustawi test: ->create(['user_id' => …])
-        ];
+            'email_verified_at' => now(),
+            ];
     }
 }
