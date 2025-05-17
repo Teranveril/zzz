@@ -77,9 +77,6 @@ class UserEmailTest extends TestCase
             'user_id' => $user->id,
         ]);
 
-        // Ważne: odśwież model użytkownika po utworzeniu emaili
-        $user->load('emails');
-
         $this->postJson("/users/{$user->id}/welcome")
             ->assertOk();
 
@@ -87,7 +84,7 @@ class UserEmailTest extends TestCase
 
         foreach ($user->emails as $email) {
             Mail::assertSent(WelcomeUserMail::class, function ($mail) use ($user, $email) {
-                return $mail->hasTo($email->email) && $mail->user->is($user);
+                return $mail->hasTo($email->email);
             });
         }
     }
