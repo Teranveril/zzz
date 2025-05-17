@@ -79,7 +79,7 @@ class UserService
 //            Mail::to($email->email)->queue(new WelcomeUserMail($user));
 //        }
 
-        $user->load('emailAddresses');
+        $user->load('emails');
         foreach ($user->emails as $address) {
             Mail::to($address->email)->send(
                 new WelcomeUserMail($user)

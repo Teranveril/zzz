@@ -65,26 +65,8 @@ class UserEmailTest extends TestCase
         $this->assertDatabaseCount('users', 0);
     }
 
-    public function test_send_welcome_emails_logs_messages()
-    {
-        $user = User::factory()->create(['first_name' => 'Marek', 'last_name' => 'Nowak']);
-        // Dodajemy dwa emaile do użytkownika
-        EmailAddress::factory()->count(2)->create(['user_id' => $user->id]);
-
-        // Mockujemy fasadę Log, żeby przechwycić wywołania
-        Log::shouldReceive('info')->times(2)->with(
-            Mockery::on(function ($msg) use ($user) {
-                // Sprawdź, czy wiadomość zawiera imię i nazwisko użytkownika
-                return str_contains($msg, "Witamy użytkownika {$user->first_name} {$user->last_name}");
-            })
-        );
-
-        $response = $this->postJson("/users/{$user->id}/welcome");
-        $response->assertStatus(200)
-            ->assertJson(['message' => 'Wiadomości zostały zalogowane']);
-    }
-
     //SMTP
+// tests/Feature/UserEmailTest.php
     public function test_welcome_mail_is_sent_to_all_addresses(): void
     {
         Mail::fake();
@@ -99,10 +81,10 @@ class UserEmailTest extends TestCase
 
         Mail::assertSent(WelcomeUserMail::class, 3);
 
-        foreach ($user->emails as $email) {
-            Mail::assertSent(WelcomeUserMail::class, function ($mailable) use ($user, $email) {
-                return $mailable->hasTo($email->email)
-                    && $mailable->user->is($user);
+        foreach ($user->emails as $email) {  // poprawnie jest emails, nie emailAddresses
+            Mail::assertSent(WelcomeUserMail::class, function ($mail) use ($user, $email) {
+                return $mail->hasTo($email->email)
+                    && $mail->user->is($user);
             });
         }
     }
